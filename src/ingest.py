@@ -1,8 +1,10 @@
 import json
+import os
+from pathlib import Path
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings # <-- Corregido: paquete actualizado
+from langchain_community.document_loaders import PyPDFLoader
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
@@ -17,12 +19,11 @@ except Exception as e:
     print(f"Error al cargar el modelo de embeddings. Asegúrate de tener 'pip install langchain-huggingface sentence-transformers'. Error: {e}")
     exit()
 
-
-# --- 2. Define la ruta al archivo JSONL ---
-FILE_PATH = "visitcali_scraping.jsonl" 
-
 documents = []
-print(f"Leyendo el archivo {FILE_PATH}...")
+
+# --- 2. Procesar archivo JSONL ---
+FILE_PATH = "data/visitcali_scraping.jsonl"
+print(f"\n📄 Leyendo el archivo {FILE_PATH}...")
 
 try:
     with open(FILE_PATH, 'r', encoding='utf-8') as f:
@@ -41,26 +42,64 @@ try:
                     text_content = f"Título: {title}\nDescripción: {description}\nFuente: {url}"
                     documents.append(text_content)
 
-    print(f"Se procesaron {len(documents)} documentos válidos del archivo JSONL.")
+    print(f"✅ Se procesaron {len(documents)} documentos del archivo JSONL.")
 
-    if not documents:
-        raise ValueError("No se encontraron documentos válidos (con descripción) en el archivo JSONL.")
+except FileNotFoundError:
+    print(f"⚠️ No se encontró el archivo '{FILE_PATH}'.")
+except json.JSONDecodeError as e:
+    print(f"❌ Error al leer el JSON en una de las líneas. Revisa el archivo. Error: {e}")
+except Exception as e:
+    print(f"❌ Ocurrió un error inesperado al leer JSONL: {e}")
 
-    # --- 4. Crea y guarda la Base de Datos Vectorial ---
-    print("Creando índice vectorial con FAISS (esto puede tardar unos segundos)...")
+# --- 3. Procesar archivos PDF ---
+DATA_DIR = Path("data")
+pdf_files = list(DATA_DIR.glob("*.pdf"))
+
+if pdf_files:
+    print(f"\n📚 Encontrados {len(pdf_files)} archivos PDF. Procesando...")
+    
+    for pdf_path in pdf_files:
+        try:
+            print(f"   - Procesando: {pdf_path.name}")
+            loader = PyPDFLoader(str(pdf_path))
+            pdf_documents = loader.load()
+            
+            # Agregar información del archivo al contenido
+            for doc in pdf_documents:
+                # Agregar metadatos al contenido
+                text_with_source = f"Fuente PDF: {pdf_path.name}\n{doc.page_content}"
+                documents.append(text_with_source)
+            
+            print(f"     ✅ {len(pdf_documents)} páginas procesadas de {pdf_path.name}")
+            
+        except Exception as e:
+            print(f"     ❌ Error al procesar {pdf_path.name}: {e}")
+    
+    print(f"✅ Total de documentos de PDFs: {len(pdf_documents) if pdf_files else 0}")
+else:
+    print(f"\nℹ️ No se encontraron archivos PDF en la carpeta 'data'.")
+
+# --- 4. Verificar que hay documentos para procesar ---
+if not documents:
+    print("\n❌ ERROR: No se encontraron documentos válidos para crear el índice.")
+    print("Asegúrate de tener el archivo JSONL o archivos PDF en la carpeta 'data'.")
+    exit()
+
+print(f"\n📊 Total de documentos a indexar: {len(documents)}")
+
+# --- 5. Crea y guarda la Base de Datos Vectorial ---
+try:
+    print("\n🔄 Creando índice vectorial con FAISS (esto puede tardar unos segundos)...")
     
     # `from_texts` toma la lista de strings y crea los embeddings y el índice
     vector_store = FAISS.from_texts(documents, embeddings_model)
     
     # Guarda el índice localmente
-    vector_store.save_local("faiss_index_cali")
+    vector_store.save_local("data/faiss_index_cali")
     
-    print("\n✅ ¡Éxito! Índice FAISS 'faiss_index_cali' creado y guardado con la nueva información.")
-
-except FileNotFoundError:
-    print(f"Error: No se encontró el archivo '{FILE_PATH}'.")
-    print("Asegúrate de que el archivo 'visitcali_scraping.jsonl' esté en la misma carpeta que este script.")
-except json.JSONDecodeError as e:
-    print(f"Error al leer el JSON en una de las líneas. Revisa el archivo. Error: {e}")
+    print("\n✅ ¡Éxito! Índice FAISS 'faiss_index_cali' creado y guardado.")
+    print(f"   📁 Ubicación: data/faiss_index_cali")
+    print(f"   📝 Documentos indexados: {len(documents)}")
+    
 except Exception as e:
-    print(f"Ocurrió un error inesperado: {e}")
+    print(f"\n❌ Ocurrió un error al crear el índice: {e}")

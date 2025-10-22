@@ -7,3 +7,5 @@ beautifulsoup4
 requests
 faiss-cpu  # Base de datos vectorial local
 google-api-python-client # Para Google Places
+pypdf  # Para leer archivos PDF
+langchain-huggingface  # Para embeddings

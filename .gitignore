@@ -19,6 +19,8 @@ env/
 
 # Generated Data
 faiss_index_cali/
+chat_history.db
 
 # Data files
 *.jsonl
+*.pdf
