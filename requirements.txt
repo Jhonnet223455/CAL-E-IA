@@ -1,0 +1,9 @@
+python-dotenv
+langchain
+langchain-google-genai
+langchain-community
+python-telegram-bot
+beautifulsoup4
+requests
+faiss-cpu  # Base de datos vectorial local
+google-api-python-client # Para Google Places

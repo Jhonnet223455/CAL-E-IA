@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Virtual Environments
+venv/
+env/
+.venv/
+.env
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# Generated Data
+faiss_index_cali/
+
+# Data files
+*.jsonl
