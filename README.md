@@ -114,6 +114,22 @@ Sigue estos pasos para poner en marcha a Cale en tu propio entorno.
     
     **💡 Nota:** CAL-E recuerda tus conversaciones anteriores para darte recomendaciones personalizadas. Cada usuario tiene su propio historial almacenado de forma segura en una base de datos local.
 
+### 🚨 Solución de Problemas
+
+Si encuentras el error `Conflict: terminated by other getUpdates request`:
+
+```powershell
+# Opción 1: Usar el script de limpieza
+.\kill_bot.ps1
+
+# Opción 2: Cerrar manualmente
+# Presiona Ctrl+C en la terminal donde corre el bot
+# Espera 10 segundos
+# Vuelve a iniciar: python src/main.py
+```
+
+Este error ocurre cuando hay **múltiples instancias del bot corriendo**. Telegram solo permite una conexión por bot. Consulta **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** para más detalles y soluciones.
+
 ## 📁 Estructura del Proyecto
 
 ```
