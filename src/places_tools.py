@@ -49,10 +49,14 @@ def buscar_lugares_google(query: str) -> str:
 
             # Clima (si hay lat/lng)
             clima_txt = ""
+            google_maps_url = ""
             loc = place.get('location') or {}
             lat = loc.get('latitude')
             lng = loc.get('longitude')
             if lat is not None and lng is not None:
+                # Generar link de Google Maps con coordenadas
+                google_maps_url = f"https://www.google.com/maps/search/?api=1&query={lat},{lng}"
+                
                 # Solo a los primeros 3 para ahorrar llamadas
                 if i <= 3:
                     clima_txt = obtener_clima_por_latlng(lat, lng)
@@ -64,7 +68,8 @@ def buscar_lugares_google(query: str) -> str:
                 f"   Dirección: {direccion}\n"
                 f"   Rating: {rating}\n"
                 f"   Web: {web}\n"
-                f"   ☀️ Pronóstico hoy: {clima_txt}\n"
+                f"   📍 Google Maps: {google_maps_url}\n"
+                f"   {clima_txt}\n"  # Sin "☀️ Pronóstico hoy:" para evitar redundancia
             )
 
         return "\n".join(formatted_results)

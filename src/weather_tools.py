@@ -81,7 +81,8 @@ def obtener_clima_por_latlng(lat: float, lng: float) -> str:
 
         resultado = " | ".join(partes) if partes else "Pronóstico no disponible."
         print(f"[DEBUG] Resultado final: {resultado}")
-        return resultado
+        # Agregar emoji al principio para formato consistente
+        return f"☀️ {resultado}"
     except Exception as e:
         print(f"[ERROR] Error en API de Clima: {e}")
         import traceback

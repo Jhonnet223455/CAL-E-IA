@@ -9,3 +9,11 @@ faiss-cpu  # Base de datos vectorial local
 google-api-python-client # Para Google Places
 pypdf  # Para leer archivos PDF
 langchain-huggingface  # Para embeddings
+
+# Audio processing (para mensajes de voz)
+openai-whisper  # Transcripción de audio con Whisper
+pydub  # Procesamiento de audio
+ffmpeg-python  # Conversión de formatos de audio
+
+# Google ADK (opcional - para interfaz web y monitoreo)
+# google-adk>=0.1.0  # Descomenta si quieres usar ADK CLI
